@@ -1,50 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Agon Success Probability Calculator</title>
+        <title>Agon Success Probability Calculator</title>
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css" />
+        <link rel="stylesheet" href="/style.css" />
 
-    <!-- import the webpage's javascript file -->
-    <script src="/script.js" defer></script>
-  </head>
-  <body>
-    <h1>
-      Agon Success Probability Calculator
-    </h1>
-    <p>
-      Target number:
-    </p>
-    <textarea id="target" rows="1" cols="3" maxlength="2"></textarea>
-    <div id="dice-selction">
-      <p>
-        Click to add die to calculation:
-      </p>
-      <button class="dice-selector" id="d4-button">
-        d4
-      </button>
-      <button class="dice-selector" id="d6-button">
-        d6
-      </button>
-      <button class="dice-selector" id="d8-button">
-        d8
-      </button>
-      <button class="dice-selector" id="d10-button">
-        d10
-      </button>
-      <button class="dice-selector" id="d12-button">
-        d12
-      </button>
-    </div>
-    <p>
-      Click to remove die from calculation:
-    </p>
-    <div id="dice-selections"></div>
-    <br />
-    <p id="result"></p>
-  </body>
+        <script src="/script.js" defer></script>
+    </head>
+    <body>
+        <h1>
+            Agon Success Probability Calculator
+        </h1>
+
+        <label>Target number: <input id="target" type="text" size="4"/></label>
+
+        <div id="dice-selction">
+            <p>
+                Click to add die to calculation:
+            </p>
+            <button class="dice-selector" id="d4-button">
+                d4
+            </button>
+            <button class="dice-selector" id="d6-button">
+                d6
+            </button>
+            <button class="dice-selector" id="d8-button">
+                d8
+            </button>
+            <button class="dice-selector" id="d10-button">
+                d10
+            </button>
+            <button class="dice-selector" id="d12-button">
+                d12
+            </button>
+        </div>
+        <p>
+            Click to remove die from calculation:
+        </p>
+        <div id="dice-selections"></div>
+        <br />
+        <p id="result"></p>
+    </body>
 </html>
