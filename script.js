@@ -1,16 +1,12 @@
-const targetText = document.querySelector("#target");
-const d4Button = document.querySelector("#d4-button");
-const d6Button = document.querySelector("#d6-button");
-const d8Button = document.querySelector("#d8-button");
-const d10Button = document.querySelector("#d10-button");
-const d12Button = document.querySelector("#d12-button");
+var targetText;
+var d4Button;
+var d6Button;
+var d8Button;
+var d10Button;
+var d12Button;
 
-const diceDisplay = document.querySelector("#dice-selections");
-
-//const calculateButton = document.querySelector("#calculate");
-
-const result = document.querySelector("#result");
-
+var diceDisplay;
+var result;
 var diceList = [];
 
 function removeDie(butRef) {
@@ -56,7 +52,7 @@ function calculate() {
     console.log(mainDice);
     console.log(d4s);
     if (mainDice.length < 2) {
-        result.innerHTML = "A roll always has at least 2 dice with 6 sides or more.";
+        result.innerHTML = "Select at least 2 dice with 6 sides or more.";
         return;
     }
 
@@ -177,40 +173,54 @@ function divineFavorDiceOutcomes(diceList) {
     return outcomeDistribution;
 }
 
-d4Button.addEventListener(
-    "click",
-    function() {
-        addDie(4);
-    },
-    false
-);
-d6Button.addEventListener(
-    "click",
-    function() {
-        addDie(6);
-    },
-    false
-);
-d8Button.addEventListener(
-    "click",
-    function() {
-        addDie(8);
-    },
-    false
-);
-d10Button.addEventListener(
-    "click",
-    function() {
-        addDie(10);
-    },
-    false
-);
-d12Button.addEventListener(
-    "click",
-    function() {
-        addDie(12);
-    },
-    false
-);
+function setup() {
+    targetText = document.querySelector("#target");
+    d4Button = document.querySelector("#d4-button");
+    d6Button = document.querySelector("#d6-button");
+    d8Button = document.querySelector("#d8-button");
+    d10Button = document.querySelector("#d10-button");
+    d12Button = document.querySelector("#d12-button");
 
-targetText.addEventListener("keyup", calculate, false);
+    diceDisplay = document.querySelector("#dice-selections");
+    result = document.querySelector("#result");
+
+    d4Button.addEventListener(
+        "click",
+        function() {
+            addDie(4);
+        },
+        false
+    );
+    d6Button.addEventListener(
+        "click",
+        function() {
+            addDie(6);
+        },
+        false
+    );
+    d8Button.addEventListener(
+        "click",
+        function() {
+            addDie(8);
+        },
+        false
+    );
+    d10Button.addEventListener(
+        "click",
+        function() {
+            addDie(10);
+        },
+        false
+    );
+    d12Button.addEventListener(
+        "click",
+        function() {
+            addDie(12);
+        },
+        false
+    );
+
+    targetText.addEventListener("keyup", calculate, false);
+}
+
+window.addEventListener("load", setup);
