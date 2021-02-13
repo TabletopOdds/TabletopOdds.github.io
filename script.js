@@ -9,6 +9,8 @@ var diceDisplay;
 var result;
 var diceList = [];
 
+var barGraphSVG;
+
 function removeDie(butRef) {
     butRef.remove();
 }
@@ -53,6 +55,7 @@ function calculate() {
     console.log(d4s);
     if (mainDice.length < 2) {
         result.innerHTML = "Select at least 2 dice with 6 sides or more.";
+        barGraphSVG.innerHTML = "";
         return;
     }
 
@@ -82,10 +85,16 @@ function calculate() {
             winningPossibilities += totalSums[i - 1];
         }
     }
+    var percentChance = [];
+    for (var i = 0; i < totalSums.length; i++) {
+        percentChance.push((100 * totalSums[i]) / totalPossibilities);
+    }
     console.log(winningPossibilities);
     console.log(totalPossibilities);
+    console.log(percentChance);
     var successPercentage = ((100 * winningPossibilities) / totalPossibilities).toFixed(2);
     result.innerHTML = "Chance of success: " + successPercentage + "%";
+    createGraph(percentChance, target);
 }
 
 function mainDiceOutcomes(diceList) {
@@ -173,6 +182,28 @@ function divineFavorDiceOutcomes(diceList) {
     return outcomeDistribution;
 }
 
+function createGraph(percentChances, target) {
+    var graphRects = "";
+    for (var i = 0; i < percentChances.length; i++) {
+        if (percentChances[i] == 0) {
+            continue;
+        }
+        var y = i * 2;
+        var coloring;
+        console.log("i+1:" + (i + 1) + " target:" + target);
+        if (i + 1 < target) {
+            coloring = "stroke:#CD5C5C; fill: #F08080";
+        } else {
+            coloring = "stroke:#3CB371; fill: #98FB98";
+        }
+
+        graphRects += '<rect x="1.5em" y="' + y + 'em" height="1.5em" width="' + percentChances[i] + '%" style="' + coloring + '" />';
+        graphRects += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 1) + "</text>";
+        graphRects += "<text x=" + (percentChances[i] + 2) + "% y=" + (y + 1.25) + "em>" + percentChances[i].toFixed(2) + "%</text>";
+    }
+    barGraphSVG.innerHTML = graphRects;
+}
+
 function setup() {
     targetText = document.querySelector("#target");
     d4Button = document.querySelector("#d4-button");
@@ -183,6 +214,8 @@ function setup() {
 
     diceDisplay = document.querySelector("#dice-selections");
     result = document.querySelector("#result");
+
+    barGraphSVG = document.querySelector("#bar-graph");
 
     d4Button.addEventListener(
         "click",

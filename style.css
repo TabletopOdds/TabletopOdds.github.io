@@ -1,3 +1,12 @@
+body {
+    margin-left: 1.5em;
+}
+
 #dice-selections {
     height: 3em;
+}
+
+svg {
+    width: 100%;
+    height: 57em;
 }
