@@ -183,7 +183,8 @@ function divineFavorDiceOutcomes(diceList) {
 }
 
 function createGraph(percentChances, target) {
-    var graphRects = "";
+    var leftCol = '<svg width="1.5em">';
+    var graphRects = '<svg x="1.5em">';
     for (var i = 0; i < percentChances.length; i++) {
         if (percentChances[i] == 0) {
             continue;
@@ -196,12 +197,16 @@ function createGraph(percentChances, target) {
         } else {
             coloring = "stroke:#3CB371; fill: #98FB98";
         }
+      
+        leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 1) + "</text>";
 
-        graphRects += '<rect x="1.5em" y="' + y + 'em" height="1.5em" width="' + percentChances[i] + '%" style="' + coloring + '" />';
-        graphRects += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 1) + "</text>";
-        graphRects += "<text x=" + (percentChances[i] + 2) + "% y=" + (y + 1.25) + "em>" + percentChances[i].toFixed(2) + "%</text>";
+        graphRects += '<rect x=0 y="' + y + 'em" height="1.5em" width="' + percentChances[i] + '%" style="' + coloring + '" />';
+
+        graphRects += "<text x=" + (percentChances[i] + 1) + "% y=" + (y + 1.25) + "em>" + percentChances[i].toFixed(2) + "%</text>";
     }
-    barGraphSVG.innerHTML = graphRects;
+    leftCol += "</svg>"
+    graphRects += "</svg>"
+    barGraphSVG.innerHTML = leftCol + graphRects;
 }
 
 function setup() {
