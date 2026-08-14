@@ -1,9 +1,14 @@
 body {
     margin-left: 1.5em;
-    font-family: Georgia, "Times New Roman", serif
+    font-family: Georgia, "Times New Roman", serif;
 }
 
 #dice-selections {
+    height: 3em;
+}
+
+button {
+    width: 3em;
     height: 3em;
 }
 
