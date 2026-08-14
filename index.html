@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <title>Agon Probability Calculator</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="style.css" />
+    <title>Agon Probability Calculator</title>
 
-        <script src="script.js" defer></script>
-    </head>
-    <body>
-        <h1>
-            Agon Probability Calculator
-        </h1>
+    <link rel="stylesheet" href="style.css" />
 
-        <label>Target number: <input id="target" type="text" size="4"/></label>
+    <script src="script.js" defer></script>
+</head>
 
-        <div id="dice-selction">
-            <p>
-                Click to add die to calculation:
-            </p>
+<body>
+    <h1>
+        Agon Probability Calculator
+    </h1>
+
+    <label>Target number: <input id="target" type="text" size="4" /></label>
+
+    <div id="dice-selction">
+        <p>
+            Click to add die to calculation:
+        </p>
+        <div class="dice-row">
             <button class="dice-selector" id="d4-button">
                 d4
             </button>
@@ -37,13 +40,15 @@
                 d12
             </button>
         </div>
-        <p>
-            Click to remove die from calculation:
-        </p>
-        <div id="dice-selections"></div>
+    </div>
+    <p>
+        Click to remove die from calculation:
+    </p>
+    <div id="dice-selections" class="dice-row"></div>
 
-        <p id="result">Select at least 2 dice with 6 sides or more.</p>
+    <p id="result">Select at least 2 dice with 6 sides or more.</p>
 
-        <svg id="bar-graph"></svg>
-    </body>
+    <svg id="bar-graph"></svg>
+</body>
+
 </html>
