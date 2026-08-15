@@ -153,6 +153,7 @@ function calculate() {
 
 
 function createGraph(outcomePercents, target) {
+    outcomePercents.shift()
     let leftCol = '<svg width="1.5em">';
     let graphRects = '<svg x="1.5em">';
     for (let i = 0; i < outcomePercents.length; i++) {
@@ -167,7 +168,7 @@ function createGraph(outcomePercents, target) {
             coloring = "stroke:#3CB371; fill: #98FB98";
         }
       
-        leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 1) + "</text>";
+        leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 2) + "</text>";
 
         graphRects += '<rect x=0 y="' + y + 'em" height="1.5em" width="' + outcomePercents[i] + '%" style="' + coloring + '" />';
 
