@@ -33,39 +33,34 @@ function addDie(evt) {
 
 const maxSides = 12;
 // Assumes diceList has at least 2 elements
-function findMainPoolOutcomes(diceList) {
+function findTopTwoDistribution(diceList) {
 
-    // This syntax creates a 12×12 2-dimensional array
-    let outcomeCounts = Array.from({ length: maxSides }, () => Array(maxSides).fill(0));
+    // This syntax creates a 13×13 2-dimensional array
+    let outcomeCounts = Array.from({ length: maxSides + 1 }, () => Array(maxSides + 1).fill(0));
+    outcomeCounts[0][0] = 1
 
-    // Handles first two dice in list
-    for (let i = 1; i <= diceList[0]; i++) {
-        for (let j = 1; j <= diceList[1]; j++) {
-            const results = [i, j]
-            results.sort()
-            outcomeCounts[results[1] - 1][results[0] - 1]++;
-        }
-    }
-
-    // Handles subsequent dice
-    for (let d = 2; d < diceList.length; d++) {
-        const newOutcomeCounts = Array.from({ length: maxSides }, () => Array(maxSides).fill(0));
-        for (let i = 1; i <= maxSides; i++) {
-            for (let j = 1; j <= maxSides; j++) {
-                for (let s = 1; s <= diceList[d]; s++) {
-                    const results = [i, j, s]
-                    results.sort()
-                    newOutcomeCounts[results[2] - 1][results[1] - 1] += outcomeCounts[i - 1][j - 1];
+    for (const die of diceList) {
+        const newOutcomeCounts = Array.from({ length: maxSides + 1 }, () => Array(maxSides + 1).fill(0));
+        for (let i = 0; i < outcomeCounts.length; i++) {
+            for (let j = 0; j <= i; j++) {
+                for (let side = 1; side <= die; side++) {
+                    if (side > i) {
+                        newOutcomeCounts[side][i] += outcomeCounts[i][j];
+                    } else if (side > j) {
+                        newOutcomeCounts[i][side] += outcomeCounts[i][j];
+                    } else {
+                        newOutcomeCounts[i][j] += outcomeCounts[i][j];
+                    }
                 }
             }
         }
         outcomeCounts = newOutcomeCounts;
     }
 
-    const sumDistribution = Array(maxSides * 2).fill(0);
-    for (let i = 1; i <= maxSides; i++) {
-        for (let j = 1; j <= maxSides; j++) {
-            sumDistribution[i + j - 1] += outcomeCounts[i - 1][j - 1];
+    const sumDistribution = Array(maxSides * 2 + 1).fill(0);
+    for (let i = 0; i < outcomeCounts.length; i++) {
+        for (let j = 0; j <= i; j++) {
+            sumDistribution[i + j] += outcomeCounts[i][j];
         }
     }
 
@@ -74,19 +69,21 @@ function findMainPoolOutcomes(diceList) {
 
 
 const dfSides = 4;
-function findDfOutcomes(diceList) {
-    let outcomeCounts = Array(dfSides).fill(1);
+function findDfDistribution(diceList) {
+    let outcomeCounts = Array(dfSides + 1).fill(0);
+    outcomeCounts[0] = 1;
 
-    for (let d = 1; d < diceList.length; d++) {
-        const newOutcomeCounts = Array(dfSides).fill(0);
-
-        for (let i = 1; i <= outcomeCounts.length; i++) {
-            for (let s = 1; s <= diceList[d]; s++) {
-                newOutcomeCounts[Math.max(i, s) - 1] += outcomeCounts[i - 1];
+    for (const die of diceList) {
+        const newOutcomeCounts = Array(dfSides + 1).fill(0);
+        for (let i = 0; i < outcomeCounts.length; i++) {
+            for (let side = 1; side <= die; side++) {
+                newOutcomeCounts[Math.max(i, side)] += outcomeCounts[i]
             }
         }
         outcomeCounts = newOutcomeCounts;
+        console.log(outcomeCounts);
     }
+
     return outcomeCounts;
 }
 
@@ -94,22 +91,17 @@ function findDfOutcomes(diceList) {
 const mainOptions = [6, 8, 10, 12]
 const dfOptions = [4]
 const allDice = mainOptions.concat(dfOptions)
-let mainPoolOutcomes;
-let dfOutcomes;
-let fullOutcomes;
+let mainPoolOutcomes = [1];
+let dfOutcomes = [1];
+let fullOutcomes = [1];
+let target = 0;
 function calculate(changedDie) {
-    const target = targetText.value;
-    if (isNaN(target)) {
-        resultDisplay.innerHTML = "Target is not a valid number.";
-        return;
-    }
-
     if (allDice.includes(changedDie)) {
         const mainDice = [];
         const d4s = [];
         const diceSelected = diceDisplay.children;
         for (let i = 0; i < diceSelected.length; i++) {
-            const dieSides = diceSelected[i].innerHTML.substring(1);
+            const dieSides = parseInt(diceSelected[i].innerHTML.substring(1));
             if (dieSides == 4) {
                 d4s.push(dieSides);
             } else {
@@ -118,39 +110,28 @@ function calculate(changedDie) {
         }
         console.log(mainDice);
         console.log(d4s);
-        if (mainDice.length < 2) {
-            resultDisplay.innerHTML = "Select at least 2 dice with 6 sides or more.";
-            barGraphSVG.innerHTML = "";
-            return;
-        }
 
-        if (mainOptions.includes(changedDie)) {
-            mainPoolOutcomes = findMainPoolOutcomes(mainDice);
-        } else if (d4s.length > 0) {
-            dfOutcomes = findDfOutcomes(d4s);
-        }
-
-        if (d4s.length > 0) {
-            fullOutcomes = Array(mainPoolOutcomes.length + dfOutcomes.length).fill(0);
-            for (let i = 1; i <= mainPoolOutcomes.length; i++) {
-                for (let j = 1; j <= dfOutcomes.length; j++) {
-                    fullOutcomes[i + j - 1] += mainPoolOutcomes[i - 1] * dfOutcomes[j - 1];
-                }
-            }
-
+        if (changedDie == 4) {
+            dfOutcomes = findDfDistribution(d4s);
         } else {
-            fullOutcomes = mainPoolOutcomes;
+            mainPoolOutcomes = findTopTwoDistribution(mainDice);
+        }
+
+        fullOutcomes = Array(mainPoolOutcomes.length + dfOutcomes.length - 1).fill(0);
+        for (let i = 0; i < mainPoolOutcomes.length; i++) {
+            for (let j = 0; j < dfOutcomes.length; j++) {
+                fullOutcomes[i + j] += mainPoolOutcomes[i] * dfOutcomes[j];
+            }
         }
     }
 
-    let totalPossibilities = 0;
-    let winningPossibilities = 0;
-    for (let i = 1; i <= fullOutcomes.length; i++) {
-        totalPossibilities += fullOutcomes[i - 1];
-        if (i >= target) {
-            winningPossibilities += fullOutcomes[i - 1];
-        }
+    const totalPossibilities = fullOutcomes.reduce((sum, currentValue) => sum + currentValue, 0);
+
+    let newTarget = parseInt(targetText.value);
+    if (Number.isInteger(newTarget)){
+        target = newTarget;
     }
+    const winningPossibilities = fullOutcomes.slice(target).reduce((sum, currentValue) => sum + currentValue, 0);
 
     const successPercentage = (100 * winningPossibilities / totalPossibilities).toFixed(2);
     const outcomePercents = Array.from(fullOutcomes, (element) => 100 * element / totalPossibilities);
@@ -163,22 +144,21 @@ function calculate(changedDie) {
 
 
 function createGraph(outcomePercents, target) {
-    outcomePercents.shift()
     let leftCol = '<svg width="1.5em">';
     let graphRects = '<svg x="1.5em">';
-    for (let i = 0; i < outcomePercents.length; i++) {
+    for (let i = 2; i < outcomePercents.length; i++) {
         if (outcomePercents[i] == 0) {
             continue;
         }
-        const y = i * 2;
+        const y = (i - 2) * 2;
         let coloring;
-        if (i + 1 < target) {
+        if (i < target) {
             coloring = "stroke: #CD5C5C; fill: #F08080";
         } else {
             coloring = "stroke: #3CB371; fill: #98FB98";
         }
 
-        leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 2) + "</text>";
+        leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + i + "</text>";
 
         graphRects += '<rect x=0 y="' + y + 'em" height="1.5em" width="' + outcomePercents[i] + '%" style="' + coloring + '" />';
 
