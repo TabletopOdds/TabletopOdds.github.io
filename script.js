@@ -14,29 +14,29 @@ const barGraphSVG = document.querySelector("#bar-graph");
 
 
 function addDie(evt) {
-    const sides = evt.currentTarget.innerHTML.trim().substring(1);
+    const sides = parseInt(evt.currentTarget.innerHTML.trim().substring(1));
     const dieButton = document.createElement("button");
     const dieNumText = document.createTextNode("d" + sides);
     dieButton.appendChild(dieNumText);
     dieButton.addEventListener(
         "click",
-        function() {
+        function () {
             dieButton.remove()
-            calculate();
+            calculate(sides);
         },
         false
     );
     diceDisplay.appendChild(dieButton);
-    calculate();
+    calculate(sides);
 }
 
 
 const maxSides = 12;
 // Assumes diceList has at least 2 elements
-function mainDiceOutcomes(diceList) {
+function findMainPoolOutcomes(diceList) {
 
     // This syntax creates a 12×12 2-dimensional array
-    let outcomeCounts = Array.from({length: maxSides}, () => Array(maxSides).fill(0));
+    let outcomeCounts = Array.from({ length: maxSides }, () => Array(maxSides).fill(0));
 
     // Handles first two dice in list
     for (let i = 1; i <= diceList[0]; i++) {
@@ -49,7 +49,7 @@ function mainDiceOutcomes(diceList) {
 
     // Handles subsequent dice
     for (let d = 2; d < diceList.length; d++) {
-        const newOutcomeCounts = Array.from({length: maxSides}, () => Array(maxSides).fill(0));
+        const newOutcomeCounts = Array.from({ length: maxSides }, () => Array(maxSides).fill(0));
         for (let i = 1; i <= maxSides; i++) {
             for (let j = 1; j <= maxSides; j++) {
                 for (let s = 1; s <= diceList[d]; s++) {
@@ -74,7 +74,7 @@ function mainDiceOutcomes(diceList) {
 
 
 const dfSides = 4;
-function divineFavorDiceOutcomes(diceList) {
+function findDfOutcomes(diceList) {
     let outcomeCounts = Array(dfSides).fill(1);
 
     for (let d = 1; d < diceList.length; d++) {
@@ -91,59 +91,69 @@ function divineFavorDiceOutcomes(diceList) {
 }
 
 
-function calculate() {
+const mainOptions = [6, 8, 10, 12]
+const dfOptions = [4]
+const allDice = mainOptions.concat(dfOptions)
+let mainPoolOutcomes;
+let dfOutcomes;
+let fullOutcomes;
+function calculate(changedDie) {
     const target = targetText.value;
     if (isNaN(target)) {
         resultDisplay.innerHTML = "Target is not a valid number.";
         return;
     }
 
-    const mainDice = [];
-    const d4s = [];
-    const diceSelected = diceDisplay.children;
-    for (let i = 0; i < diceSelected.length; i++) {
-        const dieSides = diceSelected[i].innerHTML.substring(1);
-        if (dieSides == 4) {
-            d4s.push(dieSides);
-        } else {
-            mainDice.push(dieSides);
-        }
-    }
-    console.log(mainDice);
-    console.log(d4s);
-    if (mainDice.length < 2) {
-        resultDisplay.innerHTML = "Select at least 2 dice with 6 sides or more.";
-        barGraphSVG.innerHTML = "";
-        return;
-    }
-
-    let fullSums;
-    const mainDiceSums = mainDiceOutcomes(mainDice);
-    if (d4s.length > 0) {
-        const divineFavorDiceSums = divineFavorDiceOutcomes(d4s);
-        fullSums = Array(mainDiceSums.length + divineFavorDiceSums.length).fill(0);
-
-        for (let i = 1; i <= mainDiceSums.length; i++) {
-            for (let j = 1; j <= divineFavorDiceSums.length; j++) {
-                fullSums[i + j - 1] += mainDiceSums[i - 1] * divineFavorDiceSums[j - 1];
+    if (allDice.includes(changedDie)) {
+        const mainDice = [];
+        const d4s = [];
+        const diceSelected = diceDisplay.children;
+        for (let i = 0; i < diceSelected.length; i++) {
+            const dieSides = diceSelected[i].innerHTML.substring(1);
+            if (dieSides == 4) {
+                d4s.push(dieSides);
+            } else {
+                mainDice.push(dieSides);
             }
         }
-    
-    } else {
-        fullSums = mainDiceSums;
+        console.log(mainDice);
+        console.log(d4s);
+        if (mainDice.length < 2) {
+            resultDisplay.innerHTML = "Select at least 2 dice with 6 sides or more.";
+            barGraphSVG.innerHTML = "";
+            return;
+        }
+
+        if (mainOptions.includes(changedDie)) {
+            mainPoolOutcomes = findMainPoolOutcomes(mainDice);
+        } else if (d4s.length > 0) {
+            dfOutcomes = findDfOutcomes(d4s);
+        }
+
+        if (d4s.length > 0) {
+            fullOutcomes = Array(mainPoolOutcomes.length + dfOutcomes.length).fill(0);
+            for (let i = 1; i <= mainPoolOutcomes.length; i++) {
+                for (let j = 1; j <= dfOutcomes.length; j++) {
+                    fullOutcomes[i + j - 1] += mainPoolOutcomes[i - 1] * dfOutcomes[j - 1];
+                }
+            }
+
+        } else {
+            fullOutcomes = mainPoolOutcomes;
+        }
     }
 
     let totalPossibilities = 0;
     let winningPossibilities = 0;
-    for (let i = 1; i <= fullSums.length; i++) {
-        totalPossibilities += fullSums[i - 1];
+    for (let i = 1; i <= fullOutcomes.length; i++) {
+        totalPossibilities += fullOutcomes[i - 1];
         if (i >= target) {
-            winningPossibilities += fullSums[i - 1];
+            winningPossibilities += fullOutcomes[i - 1];
         }
     }
-    
+
     const successPercentage = (100 * winningPossibilities / totalPossibilities).toFixed(2);
-    const outcomePercents = Array.from(fullSums, (element) => 100 * element / totalPossibilities);
+    const outcomePercents = Array.from(fullOutcomes, (element) => 100 * element / totalPossibilities);
     console.log(winningPossibilities);
     console.log(totalPossibilities);
     console.log(outcomePercents);
@@ -163,11 +173,11 @@ function createGraph(outcomePercents, target) {
         const y = i * 2;
         let coloring;
         if (i + 1 < target) {
-            coloring = "stroke:#CD5C5C; fill: #F08080";
+            coloring = "stroke: #CD5C5C; fill: #F08080";
         } else {
-            coloring = "stroke:#3CB371; fill: #98FB98";
+            coloring = "stroke: #3CB371; fill: #98FB98";
         }
-      
+
         leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + (i + 2) + "</text>";
 
         graphRects += '<rect x=0 y="' + y + 'em" height="1.5em" width="' + outcomePercents[i] + '%" style="' + coloring + '" />';
@@ -180,9 +190,14 @@ function createGraph(outcomePercents, target) {
 }
 
 
+
 targetText.addEventListener("keyup", calculate);
 d4Button.addEventListener("click", addDie);
 d6Button.addEventListener("click", addDie);
 d8Button.addEventListener("click", addDie);
 d10Button.addEventListener("click", addDie);
 d12Button.addEventListener("click", addDie);
+
+
+// TO DO
+// Make buttons look fancier
