@@ -44,9 +44,9 @@ function findTopTwoDistribution(diceList) {
         for (let i = 0; i < outcomeCounts.length; i++) {
             for (let j = 0; j <= i; j++) {
                 for (let side = 1; side <= die; side++) {
-                    if (side > i) {
+                    if (side >= i) {
                         newOutcomeCounts[side][i] += outcomeCounts[i][j];
-                    } else if (side > j) {
+                    } else if (side >= j) {
                         newOutcomeCounts[i][side] += outcomeCounts[i][j];
                     } else {
                         newOutcomeCounts[i][j] += outcomeCounts[i][j];
