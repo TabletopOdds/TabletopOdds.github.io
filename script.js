@@ -1,34 +1,11 @@
 
 const targetText = document.querySelector("#target");
-const d4Button = document.querySelector("#d4-button");
-const d6Button = document.querySelector("#d6-button");
-const d8Button = document.querySelector("#d8-button");
-const d10Button = document.querySelector("#d10-button");
-const d12Button = document.querySelector("#d12-button");
 
 const diceDisplay = document.querySelector("#dice-selections");
 const resultDisplay = document.querySelector("#result");
-const diceList = [];
 
 const barGraphSVG = document.querySelector("#bar-graph");
 
-
-function addDie(evt) {
-    const sides = parseInt(evt.currentTarget.innerHTML.trim().substring(1));
-    const dieButton = document.createElement("button");
-    const dieNumText = document.createTextNode("d" + sides);
-    dieButton.appendChild(dieNumText);
-    dieButton.addEventListener(
-        "click",
-        function () {
-            dieButton.remove()
-            calculate(sides);
-        },
-        false
-    );
-    diceDisplay.appendChild(dieButton);
-    calculate(sides);
-}
 
 
 const maxSides = 12;
@@ -68,67 +45,53 @@ function findTopTwoDistribution(diceList) {
 }
 
 
-const dfSides = 4;
-function findDfDistribution(diceList) {
-    let outcomeCounts = Array(dfSides + 1).fill(0);
+function findTopOneDistribution(diceList) {
+    let outcomeCounts = Array(maxSides + 1).fill(0);
     outcomeCounts[0] = 1;
 
     for (const die of diceList) {
-        const newOutcomeCounts = Array(dfSides + 1).fill(0);
+        const newOutcomeCounts = Array(maxSides + 1).fill(0);
         for (let i = 0; i < outcomeCounts.length; i++) {
             for (let side = 1; side <= die; side++) {
                 newOutcomeCounts[Math.max(i, side)] += outcomeCounts[i]
             }
         }
         outcomeCounts = newOutcomeCounts;
-        console.log(outcomeCounts);
     }
 
     return outcomeCounts;
 }
 
 
-const mainOptions = [6, 8, 10, 12]
-const dfOptions = [4]
-const allDice = mainOptions.concat(dfOptions)
-let mainPoolOutcomes = [1];
-let dfOutcomes = [1];
 let fullOutcomes = [1];
-let target = 0;
-function calculate(changedDie) {
-    if (allDice.includes(changedDie)) {
-        const mainDice = [];
-        const d4s = [];
-        const diceSelected = diceDisplay.children;
-        for (let i = 0; i < diceSelected.length; i++) {
-            const dieSides = parseInt(diceSelected[i].innerHTML.substring(1));
-            if (dieSides == 4) {
-                d4s.push(dieSides);
-            } else {
-                mainDice.push(dieSides);
-            }
-        }
-        console.log(mainDice);
-        console.log(d4s);
+let totalPossibilities = 1;
+function updateDiceOutcomes() {
 
-        if (changedDie == 4) {
-            dfOutcomes = findDfDistribution(d4s);
-        } else {
-            mainPoolOutcomes = findTopTwoDistribution(mainDice);
-        }
-
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const allDice = Array.from(diceDisplay.children).map((x) => parseInt(x.innerHTML.substring(1)));
+    if (mode == "top2") {
+        mainPoolOutcomes = findTopTwoDistribution(allDice.filter((x) => x != 4));
+        dfOutcomes = findTopOneDistribution(allDice.filter((x) => x == 4));
         fullOutcomes = Array(mainPoolOutcomes.length + dfOutcomes.length - 1).fill(0);
         for (let i = 0; i < mainPoolOutcomes.length; i++) {
             for (let j = 0; j < dfOutcomes.length; j++) {
                 fullOutcomes[i + j] += mainPoolOutcomes[i] * dfOutcomes[j];
             }
         }
+
+    } else if (mode == "top1") {
+        fullOutcomes = findTopOneDistribution(allDice);
     }
 
-    const totalPossibilities = fullOutcomes.reduce((sum, currentValue) => sum + currentValue, 0);
+    totalPossibilities = fullOutcomes.reduce((sum, currentValue) => sum + currentValue);
+    updateDisplay();
+}
 
+
+let target = 0;
+function updateDisplay() {
     let newTarget = parseInt(targetText.value);
-    if (Number.isInteger(newTarget)){
+    if (Number.isInteger(newTarget)) {
         target = newTarget;
     }
     const winningPossibilities = fullOutcomes.slice(target).reduce((sum, currentValue) => sum + currentValue, 0);
@@ -146,11 +109,11 @@ function calculate(changedDie) {
 function createGraph(outcomePercents, target) {
     let leftCol = '<svg width="1.5em">';
     let graphRects = '<svg x="1.5em">';
-    for (let i = 2; i < outcomePercents.length; i++) {
+    for (let i = 1; i < outcomePercents.length; i++) {
         if (outcomePercents[i] == 0) {
             continue;
         }
-        const y = (i - 2) * 2;
+        const y = (i - 1) * 2;
         let coloring;
         if (i < target) {
             coloring = "stroke: #CD5C5C; fill: #F08080";
@@ -170,13 +133,26 @@ function createGraph(outcomePercents, target) {
 }
 
 
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener("change", updateDiceOutcomes);
+});
 
-targetText.addEventListener("keyup", calculate);
-d4Button.addEventListener("click", addDie);
-d6Button.addEventListener("click", addDie);
-d8Button.addEventListener("click", addDie);
-d10Button.addEventListener("click", addDie);
-d12Button.addEventListener("click", addDie);
+targetText.addEventListener("keyup", updateDisplay);
+
+document.querySelectorAll(".dice-selector").forEach(button => {
+    button.addEventListener("click", (evt) => {
+        const sides = evt.currentTarget.innerHTML.trim().substring(1);
+        const dieButton = document.createElement("button");
+        const dieNumText = document.createTextNode("d" + sides);
+        dieButton.appendChild(dieNumText);
+        dieButton.addEventListener("click", (evt) => {
+            dieButton.remove();
+            updateDiceOutcomes();
+        });
+        diceDisplay.appendChild(dieButton);
+        updateDiceOutcomes();
+    });
+});
 
 
 // TO DO
