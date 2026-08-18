@@ -116,16 +116,17 @@ function createGraph(outcomePercents, target) {
         const y = (i - 1) * 2;
         let coloring;
         if (i < target) {
-            coloring = "stroke: #CD5C5C; fill: #F08080";
+            coloring = "stroke: #CD5C5C; fill: #F08080;";
         } else {
-            coloring = "stroke: #3CB371; fill: #98FB98";
+            coloring = "stroke: #3CB371; fill: #98FB98;";
         }
 
         leftCol += "<text x=0 y=" + (y + 1.25) + "em>" + i + "</text>";
 
         graphRects += '<rect x=0 y="' + y + 'em" height="1.5em" width="' + outcomePercents[i] + '%" style="' + coloring + '" />';
 
-        graphRects += "<text x=" + (outcomePercents[i] + 1) + "% y=" + (y + 1.25) + "em>" + outcomePercents[i].toFixed(2) + "%</text>";
+        let orGreaterPercent = outcomePercents.slice(i).reduce((sum, currentValue) => sum + currentValue);
+        graphRects += "<text x=" + (outcomePercents[i] + 1) + "% y=" + (y + 1.25) + "em>" + outcomePercents[i].toFixed(2) + '% <tspan style="font-style: italic;">(' + orGreaterPercent.toFixed(1) + "%)</tspan></text>";
     }
     leftCol += "</svg>"
     graphRects += "</svg>"
@@ -156,4 +157,5 @@ document.querySelectorAll(".dice-selector").forEach(button => {
 
 
 // TO DO
+// Add percentage totals to bar graph
 // Make buttons look fancier
